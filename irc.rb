@@ -2,7 +2,7 @@
 
 require 'socket'
 require 'redis'
- 
+
 class IRC
   def initialize(info)
     @server = info[:server]
@@ -22,12 +22,12 @@ class IRC
     }
     on("connect") { join @channel }
   end
- 
+
   def send(command)
     puts "---> #{command}" if @debug
     @irc.send "#{command}\n", 0
   end
- 
+
   def handle_server_input(s)
     case s.strip
       when /^PING :(.+)$/i
@@ -69,7 +69,7 @@ class IRC
         puts s if @debug
     end
   end
- 
+
   def main
     r = Redis.new
     threads = []
@@ -104,7 +104,7 @@ class IRC
     end
     threads.each { |t| t.join }
   end
- 
+
   def connect
     @irc = TCPSocket.open(@server, @port)
     send "PASS #{@password}" if @password
@@ -121,15 +121,15 @@ class IRC
       retry
     end
   end
- 
+
   def on(listener, &block)
     @callbacks[listener].push(block)
   end
- 
+
   def join(channel)
     send "JOIN #{channel}"
   end
- 
+
   def say(who, msg)
     send "PRIVMSG #{who} #{msg}"
   end

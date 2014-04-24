@@ -3,12 +3,12 @@ require 'em-hiredis'
 
 EM.run {
   @channel = EM::Channel.new
- 
+
   @redis = EM::Hiredis.connect
   puts 'subscribing to redis'
   @redis.pubsub.subscribe('irc:stream'){ |message|
     puts "redis ->  #{message}"
-    @channel.push message 
+    @channel.push message
   }
 
   EM::WebSocket.run(:host => "0.0.0.0", :port => 3333) do |ws|
@@ -21,7 +21,7 @@ EM.run {
       # Publish message to the client
       ws.send "Hello Client, you connected to #{handshake.path}"
       puts 'subscribing to channel'
-      sid = @channel.subscribe do |msg| 
+      sid = @channel.subscribe do |msg|
         puts "sending: #{msg}"
         ws.send msg
     end
