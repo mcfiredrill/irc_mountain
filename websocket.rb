@@ -31,8 +31,8 @@ EM.run {
 
     ws.onmessage { |msg|
       puts "Recieved message: #{msg}"
-      ws.send "Pong: #{msg}"
-      @redis.rpush("irc:send","PRIVMSG #datafruitsouth :#{msg}")
+      ws.send "me;#{msg}"
+      @redis.publish("irc:send", "me;#{msg}")
     }
   end
 }

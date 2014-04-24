@@ -5,8 +5,8 @@ var socket = new WebSocket('ws://localhost:3333');
 socket.onmessage = function(message){
   console.log("got message: "+message.data);
   var str = message.data;
-  var nick = str.substr(0,str.indexOf(' '));
-  var msg = str.substr(str.indexOf(' ')+1);
+  var nick = str.substr(0,str.indexOf(';'));
+  var msg = str.substr(str.indexOf(';')+1);
   $("#main").append("<div class='nick'>"+nick+": </div>");
   $("#main").append("<div class='message'>"+msg+"</div>");
 };
