@@ -1,47 +1,29 @@
-require './irc'
+require 'cinch'
 require 'redis'
 
 r = Redis.new
 
-irc = IRC.new({
-  :server => "irc.freenode.net",
-  :port => 6667, # optional
-  :channel => "#datafruitsouth",
-  :nick => "rutbut",
-  :real => "Rubot", #optional
-  :debug => true # optional
-})
+irc = Cinch::Bot.new do
+  configure do |c|
+    c.server = "irc.esper.net"
+    #c.port = 6667, # optiona
+    c.channels = ["#datafruitseast"]
+    c.nick = "rutbutbutt"
+    #c.real = "Rubot", #optiona
+    #c.debug = true # optiona
+  end
 
-### listeners
+  on :message do |message|
+    # called when a user sends a message to a channel
+    msg = "#{message.user.nick} #{message.message}"
+    puts msg
+    r.publish "irc:stream", msg
+  end
 
-irc.on("connect") do
-  # called when you have registered on the server
+  #on :join do |channel, nick|
+    # called when a user joins a channel
+  #  r.publish "irc:stream", "#{nick} has joined #{channel}"
+  #end
 end
 
-irc.on("join") do |channel, nick|
-  # called when a user joins a channel
-  r.publish "irc:stream", "#{nick} has joined #{channel}"
-end
-
-irc.on("part") do |channel, nick|
-  # called when a user leaves a channel
-end
-
-irc.on("nick") do |nick, new_nick|
-  # called when a user changes their nick
-end
-
-irc.on("message") do |channel, nick, message|
-  # called when a user sends a message to a channel
-  msg = "#{nick} #{message}"
-  puts msg
-  r.publish "irc:stream", msg
-end
-
-irc.on("pm") do |nick, message|
-  # called when a user sends a private message to you
-end
-
-### methods
-
-irc.connect # connect to the server
+irc.start
