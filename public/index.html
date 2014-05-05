@@ -1,7 +1,7 @@
 <link href="style.css" rel="stylesheet">
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script>
-var socket = new WebSocket('ws://localhost:3333');
+var socket = new WebSocket('ws://192.168.1.229:3333');
 socket.onmessage = function(message){
   console.log("got message: "+message.data);
   var str = message.data;
@@ -9,7 +9,29 @@ socket.onmessage = function(message){
   var msg = str.substr(str.indexOf(';')+1);
   $("#main").append("<div class='nick'>"+nick+": </div>");
   $("#main").append("<div class='message'>"+msg+"</div>");
+  $('#main').scrollTop($('#main')[0].scrollHeight);
 };
+
+$(document).ready(function(){
+  $('form').submit(function(e) {
+    console.log('submitted');
+    var msg = $('input[name=message]').first().val();
+    socket.send(msg);
+    $('input[name=message]').first().val('');
+    e.preventDefault();
+  });
+});
 </script>
+<style>
+  #main{
+    height:300px;
+    width:300px;
+    overflow:scroll;
+  }
+</style>
 <div id="main">
 </div>
+<form action="">
+  <input type='text' name='message'>
+  <input type='submit'>
+</form>
