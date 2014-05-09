@@ -1,26 +1,42 @@
 <link href="style.css" rel="stylesheet">
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="http://builds.handlebarsjs.com.s3.amazonaws.com/handlebars-1.0.0.js"></script>
+<script src="http://builds.emberjs.com/tags/v1.3.0/ember.js"></script>
 <script>
-var socket = new WebSocket('ws://192.168.1.229:3333');
-socket.onmessage = function(message){
-  console.log("got message: "+message.data);
-  var str = message.data;
-  var nick = str.substr(0,str.indexOf(';'));
-  var msg = str.substr(str.indexOf(';')+1);
-  $("#main").append("<div class='nick'>"+nick+": </div>");
-  $("#main").append("<div class='message'>"+msg+"</div>");
-  $('#main').scrollTop($('#main')[0].scrollHeight);
-};
+  window.Datafruits = Ember.Application.create();
 
-$(document).ready(function(){
-  $('form').submit(function(e) {
-    console.log('submitted');
-    var msg = $('input[name=message]').first().val();
-    socket.send(msg);
-    $('input[name=message]').first().val('');
-    e.preventDefault();
+  Datafruits.Router.map(function() {
+    this.resource('login', { path: '/' });
   });
-});
+
+  var socket = new WebSocket('ws://0.0.0.0:3333');
+  var nick;
+
+  socket.onmessage = function(message){
+    console.log("got message: "+message.data);
+    var str = message.data;
+    var nick = str.substr(0,str.indexOf(';'));
+    var msg = str.substr(str.indexOf(';')+1);
+    $("#main").append("<div class='nick'>"+nick+": </div>");
+    $("#main").append("<div class='message'>"+msg+"</div>");
+    $('#main').scrollTop($('#main')[0].scrollHeight);
+  };
+
+  $(document).ready(function(){
+    $('form#chat').submit(function(e) {
+      console.log('submitted');
+      var msg = $('input[name=message]').first().val();
+      socket.send("MESSAGE "+nick+";"+msg);
+      $('input[name=message]').first().val('');
+      e.preventDefault();
+    });
+    $('form#connect').submit(function(e) {
+      console.log('connecting...');
+      nick = $('input[name=nick]').first().val();
+      socket.send("CONNECT "+nick);
+      e.preventDefault();
+    });
+  });
 </script>
 <style>
   #main{
@@ -29,9 +45,13 @@ $(document).ready(function(){
     overflow:scroll;
   }
 </style>
+<form id='connect' action=''>
+  <label>Nick</label><input type='text' name='nick'>
+  <input type='submit' value='Connect'>
+</form>
 <div id="main">
 </div>
-<form action="">
+<form id='chat' action="">
   <input type='text' name='message'>
   <input type='submit'>
 </form>
